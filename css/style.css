@@ -1,0 +1,21 @@
+main {
+  margin-top: 60px;
+}
+
+.col-8 {
+  background-color: aqua;
+}
+
+.col-3 {
+  background-color: bisque;
+}
+
+.displayTodoItem {
+  background-color: grey;
+  border-radius: 10px;
+  width: 100%;
+  padding: 1em;
+  margin: 1em auto;
+  display: flex;
+  justify-content: space-between;
+}/*# sourceMappingURL=style.css.map */
