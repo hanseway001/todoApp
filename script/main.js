@@ -20,10 +20,15 @@ function onPageLoad() {
 function addNewTodo(todoListName, todoListId) {
     allTodoList.push({
         todoListName,
-        todoListId
+        todoListId,
+        todos: []
     })
 
     displayTodoList()
+}
+
+function addNewItemToTodo() {
+
 }
 
 
@@ -44,23 +49,27 @@ function getNewTodo() {
 }
 
 function handleDeleteTodo(parentID){
-    // const deleteElement = document.getElementById(parentID);
-    // const indexOfItem = (element) => element === parentID
-    // const index = allTodoList.map(e => e.name).indexOf(parentID);
     const index = allTodoList.findIndex(item => item.todoListId === parentID);
     deleteTodo(index)
     displayTodoList()
-    // const arrayItemNum = deleteElement.parentElement.id
-    // deleteElement.addEventListener("onClick", deleteTodo(arrayItemNum))
-}
-
-function editTodo(newListName) {
-    allTodoList.todoListName = newListName
+    displayTodoTittle(index)
 }
 
 function deleteTodo(idexNum) {
     allTodoList.splice(idexNum, 1)
 }
+
+function handleEditTodo(parentID){
+    const index = allTodoList.findIndex(item => item.todoListId === parentID);
+    editTodo(index)
+    displayTodoList()
+}
+
+function editTodo(index) {
+    allTodoList[index].todoListName = 'test'
+}
+
+
 
 function displayTodoList() {
     const displayLocation = document.querySelector('.displayTodoList');
@@ -68,11 +77,11 @@ function displayTodoList() {
     allTodoList.forEach(item => {
         const { todoListName , todoListId } = item
         newInnerHTML += `
-            <div class="displayTodoItem">
+            <div id="${todoListId}" class="displayTodoItem" onclick="displayTodoTittle(this.id)">
                 <div>${todoListName}</div>
-                <div id="${todoListId}">
-                    <img class="edit icon" onclick="" src="images/icons8-pencil-24.png" alt="">
-                    <img class="delete icon" onclick="handleDeleteTodo(this.parentElement.id)" src="images/icons8-delete-trash-24.png" alt="">
+                <div>
+                    <img class="edit icon" onclick="handleEditTodo(this.parentElement.parentElement.id)" src="images/icons8-pencil-24.png" alt="">
+                    <img class="delete icon" onclick="handleDeleteTodo(this.parentElement.parentElement.id)" src="images/icons8-delete-trash-24.png" alt="">
                 </div>
             </div>
         `
@@ -82,10 +91,20 @@ function displayTodoList() {
 
 
 
-function displayTodoTittle() {
+function displayTodoTittle(index) {
+    let listName = 'Create New Todo Please'
     const displayTodo = document.querySelector('.displayTodo')
-    let newInnerHTML = `<h1>` + allTodoList[0].todoListName; `</h1>`
+    
+    // const index = allTodoList.findIndex(item => item.todoListId === parentID);
+    // const index =
+    if (allTodoList.length > 0) {
+        listName = allTodoList[index].todoListName
+    }
+    let newInnerHTML = `<h1>` + listName + `</h1>`
     displayTodo.innerHTML = newInnerHTML 
+
+
+
 }
 
 function clearInputBox(element) {
