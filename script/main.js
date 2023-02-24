@@ -1,58 +1,73 @@
 // storing the list info
 
-// const todoList = {
-//     todoListName: 'name',
-//     todoListItems: ['list1', 'list2']
-//  };
-// store the list infoo with s constructor function
-// function TodoList(name) {
-    //     this.name = name;
-    //     this.itemArray = item;
-    // }
 let allTodoList = [];
 
 function onPageLoad() {
     getNewTodo();
     displayTodoList();
     handleDeleteTodo();
+    // hanndleNewTodoItem();
 }
 
 function addNewTodo(todoListName, todoListId) {
     allTodoList.push({
         todoListName,
         todoListId,
-        todos: []
+        todos: [
+        ]
     })
 
     displayTodoList()
 }
 
-function addNewItemToTodo() {
-
+function addNewTodoItemToArray(todoItemName, createdItemID, todoListIndex) {
+    allTodoList[todoListIndex].todos.push({itemID : createdItemID, todoItem : todoItemName})
 }
 
+function handleNewTodoItem() {
+    const buttonElement = document.querySelector(".newTodoItem");
+
+    buttonElement.addEventListener("keydown", function(event){
+        if (event.key === 'Enter') {
+            const todoListIndex = getArrayIndexFromID(this.parentElement.id)
+            const todoItemName = document.querySelector('.newTodoItem').value
+            let createdItemID = randomString(5)
+            
+            addNewTodoItemToArray(todoItemName, createdItemID, todoListIndex)
+            //clear input box
+            displayTodoItems(todoItemName)
+            clearInputBox(buttonElement)
+            // displayTodoTittle(createdID)
+        }
+    });   
+}
 
 function getNewTodo() {
     const buttonElement = document.querySelector(".newTodo");
 
     buttonElement.addEventListener("keydown", function(event){
         if (event.key === 'Enter') {
-            // event.preventDefault()
             const todoListName = document.querySelector('.newTodo').value
-            addNewTodo(todoListName, randomString(5))
+            let createdID = randomString(5)
+
+            addNewTodo(todoListName, createdID)
             //clear input box
             clearInputBox(buttonElement)
-            displayTodoTittle()
+            displayTodoTittle(createdID)
         }
-    });
-    
+    });   
 }
 
-function handleDeleteTodo(parentID){
-    const index = allTodoList.findIndex(item => item.todoListId === parentID);
+function getArrayIndexFromID(arrayID) {
+    return allTodoList.findIndex(item => item.todoListId === arrayID); 
+}
+
+function handleDeleteTodo(arrayID){
+    // const index = allTodoList.findIndex(item => item.todoListId === parentID);
+    const index = getArrayIndexFromID(arrayID)
     deleteTodo(index)
     displayTodoList()
-    displayTodoTittle(index)
+    displayTodoTittle(arrayID)
 }
 
 function deleteTodo(idexNum) {
@@ -60,16 +75,14 @@ function deleteTodo(idexNum) {
 }
 
 function handleEditTodo(parentID){
-    const index = allTodoList.findIndex(item => item.todoListId === parentID);
-    editTodo(index)
+    // const index = allTodoList.findIndex(item => item.todoListId === parentID);
+    editTodo(getArrayIndexFromID(parentID))
     displayTodoList()
 }
 
 function editTodo(index) {
     allTodoList[index].todoListName = 'test'
 }
-
-
 
 function displayTodoList() {
     const displayLocation = document.querySelector('.displayTodoList');
@@ -89,22 +102,50 @@ function displayTodoList() {
     displayLocation.innerHTML = newInnerHTML
 }
 
-
-
-function displayTodoTittle(index) {
-    let listName = 'Create New Todo Please'
-    const displayTodo = document.querySelector('.displayTodo')
+function displayTodoTittle(arrayID) {
+    let listName = ''
+    let todoItemInput = ''
+    const displayTodo = document.querySelector('.displayTodoTittle')
     
     // const index = allTodoList.findIndex(item => item.todoListId === parentID);
-    // const index =
+    let index = getArrayIndexFromID(arrayID)
+    if(index == -1){
+        index = 0
+    }
+
     if (allTodoList.length > 0) {
         listName = allTodoList[index].todoListName
+        todoItemInput =  `
+            <div id="${arrayID}">
+                <label for=""><h4>Create New Todo Item:</h4></label>
+                <input class="form-control mr-sm-2 newTodoItem" type="text" placeholder="Enter New Todo" aria-label="listName">             
+            </div>`
+    } else {
+        listName = 'Create New Todo Please'
     }
-    let newInnerHTML = `<h1>` + listName + `</h1>`
+    let newInnerHTML = `<h1>` + listName + `</h1>` + todoItemInput
     displayTodo.innerHTML = newInnerHTML 
+    handleNewTodoItem()
+}
 
+function displayTodoItems(todoID) {
+    const displayLocation = document.querySelector('.displayTodoList');
+    let newInnerHTML = '';
+    let todoIndex = getArrayIndexFromID(todoID)
 
-
+    allTodoList[todoIndex].forEach(item => {
+        const { itemId , todoItem } = item
+        newInnerHTML += `
+            <div id="${itemId}" class="displayTodoItem">
+                <div>${todoItem}</div>
+                <div>
+                    <img class="edit icon" onclick="handleEditItem(this.parentElement.parentElement.id)" src="images/icons8-pencil-24.png" alt="">
+                    <img class="delete icon" onclick="handleDeleteItem(this.parentElement.parentElement.id)" src="images/icons8-delete-trash-24.png" alt="">
+                </div>
+            </div>
+        `
+    });
+    displayLocation.innerHTML = newInnerHTML
 }
 
 function clearInputBox(element) {

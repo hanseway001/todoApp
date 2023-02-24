@@ -38,3 +38,10 @@ main {
     background-color: #979797;
     border-radius: 10px;
 }
+
+.displayTodoTittle {
+    border-bottom: 1px solid black;
+    display: flex;
+    justify-content: space-between;
+    padding: 1em 0;
+}
