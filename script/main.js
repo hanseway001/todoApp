@@ -5,7 +5,7 @@ let allTodoList = [];
 function onPageLoad() {
     getNewTodo();
     displayTodoList();
-    handleDeleteTodo();
+  //  handleDeleteTodo();
     // hanndleNewTodoItem();
 }
 
@@ -20,7 +20,9 @@ function addNewTodo(todoListName, todoListId) {
     displayTodoList()
 }
 
-function addNewTodoItemToArray(todoItemName, createdItemID, todoListIndex) {
+function addNewTodoItemToArray(todoItemName, createdItemID, todoID) {
+    let todoListIndex = allTodoList.findIndex(allTodo => allTodo.todoListId === todoID)
+    // let myIndex = fruits.findIndex(fruit => fruit.type === "Orange");
     allTodoList[todoListIndex].todos.push({itemID : createdItemID, todoItem : todoItemName})
 }
 
@@ -40,6 +42,22 @@ function handleNewTodoItem() {
             // displayTodoTittle(createdID)
         }
     });   
+}
+
+function handleKeyDownForNewTodoInput( event) {
+    const buttonElement = document.querySelector(".newTodoItem");
+    if (event.key === 'Enter') {
+        // const todoListIndex = 
+        const todoItemName = document.querySelector('.newTodoItem').value
+        const todoListID = event.target.getAttribute('data-todoListId')
+        let createdItemID = randomString(5)
+        
+        addNewTodoItemToArray(todoItemName, createdItemID, todoListID)
+        //clear input box
+        displayTodoItems(todoListID)
+        clearInputBox(buttonElement)
+        // displayTodoTittle(createdID)
+    }
 }
 
 function getNewTodo() {
@@ -62,26 +80,36 @@ function getArrayIndexFromID(arrayID) {
     return allTodoList.findIndex(item => item.todoListId === arrayID); 
 }
 
-function handleDeleteTodo(arrayID){
+function handleDeleteTodo(arrayId){
     // const index = allTodoList.findIndex(item => item.todoListId === parentID);
-    const index = getArrayIndexFromID(arrayID)
-    deleteTodo(index)
+    // const index = getArrayIndexFromID(arrayID)
+    deleteTodo(arrayId)
     displayTodoList()
-    displayTodoTittle(arrayID)
+    displayTodoTittle(arrayId)
+  //  if(allTodoList.length>0) {
+        displayTodoItems(allTodoList[0].todoListId)
+  //  }
 }
 
-function deleteTodo(idexNum) {
-    allTodoList.splice(idexNum, 1)
+
+function deleteTodo(arrayId) {
+    allTodoList.splice(getArrayIndexFromID(arrayId), 1)
 }
 
-function handleEditTodo(parentID){
+function handleEditTodo(todoListId){
     // const index = allTodoList.findIndex(item => item.todoListId === parentID);
-    editTodo(getArrayIndexFromID(parentID))
+    editTodo(todoListId)
     displayTodoList()
 }
 
-function editTodo(index) {
-    allTodoList[index].todoListName = 'test'
+function editTodo(todoListId) {
+
+    const todoList = getTodoListById(todoListId);
+    todoList.todoListName = 'test'
+}
+
+function getTodoListById(todoListId) {
+    return allTodoList.find(currentTodoList => currentTodoList.todoListId === todoListId)
 }
 
 function displayTodoList() {
@@ -90,11 +118,11 @@ function displayTodoList() {
     allTodoList.forEach(item => {
         const { todoListName , todoListId } = item
         newInnerHTML += `
-            <div id="${todoListId}" class="displayTodoItem" onclick="displayTodoTittle(this.id)">
+            <div id="${todoListId}" class="displayTodoItem" onclick="displayTodoTittle('${todoListId}')">
                 <div>${todoListName}</div>
                 <div>
-                    <img class="edit icon" onclick="handleEditTodo(this.parentElement.parentElement.id)" src="images/icons8-pencil-24.png" alt="">
-                    <img class="delete icon" onclick="handleDeleteTodo(this.parentElement.parentElement.id)" src="images/icons8-delete-trash-24.png" alt="">
+                    <img class="edit icon" data-todoListId="${todoListId}"  onclick="handleEditTodo('${todoListId}')" src="images/icons8-pencil-24.png" alt="">
+                    <img class="delete icon" onclick="handleDeleteTodo('${todoListId}')" src="images/icons8-delete-trash-24.png" alt="">
                 </div>
             </div>
         `
@@ -102,45 +130,50 @@ function displayTodoList() {
     displayLocation.innerHTML = newInnerHTML
 }
 
-function displayTodoTittle(arrayID) {
+function displayTodoTittle(arrayId) {
     let listName = ''
     let todoItemInput = ''
     const displayTodo = document.querySelector('.displayTodoTittle')
     
-    // const index = allTodoList.findIndex(item => item.todoListId === parentID);
-    let index = getArrayIndexFromID(arrayID)
-    if(index == -1){
+    let index
+    if(getArrayIndexFromID(arrayId)<0){
         index = 0
+        arrayId = allTodoList[0].todoListId
+    } else {
+        index = getArrayIndexFromID(arrayId)
     }
+
+    console.log(arrayId  + ' array id')
+    console.log(index  + ' array index')
 
     if (allTodoList.length > 0) {
         listName = allTodoList[index].todoListName
         todoItemInput =  `
-            <div id="${arrayID}">
+            <div id="${arrayId}">
                 <label for=""><h4>Create New Todo Item:</h4></label>
-                <input class="form-control mr-sm-2 newTodoItem" type="text" placeholder="Enter New Todo" aria-label="listName">             
+                <input data-todolistID="${arrayId}" onkeydown="handleKeyDownForNewTodoInput(event, '${arrayId}')" class="form-control mr-sm-2 newTodoItem" type="text" placeholder="Enter New Todo" aria-label="listName">             
             </div>`
-    } else {
-        listName = 'Create New Todo Please'
-    }
-    let newInnerHTML = `<h1>` + listName + `</h1>` + todoItemInput
-    displayTodo.innerHTML = newInnerHTML 
-    handleNewTodoItem()
+        } else {
+            listName = 'Create New Todo Please'
+        }
+        let newInnerHTML = `<h1>` + listName + `</h1>` + todoItemInput
+        displayTodo.innerHTML = newInnerHTML 
+       displayTodoItems(arrayId)
 }
 
 function displayTodoItems(todoID) {
-    const displayLocation = document.querySelector('.displayTodoList');
+    const displayLocation = document.querySelector('.todoListDisplayArea');
     let newInnerHTML = '';
     let todoIndex = getArrayIndexFromID(todoID)
 
-    allTodoList[todoIndex].forEach(item => {
-        const { itemId , todoItem } = item
+    allTodoList[todoIndex].todos.forEach(item => {
+        const { itemID , todoItem } = item
         newInnerHTML += `
-            <div id="${itemId}" class="displayTodoItem">
+            <div id="${itemID}" class="displayTodoItem">
                 <div>${todoItem}</div>
                 <div>
-                    <img class="edit icon" onclick="handleEditItem(this.parentElement.parentElement.id)" src="images/icons8-pencil-24.png" alt="">
-                    <img class="delete icon" onclick="handleDeleteItem(this.parentElement.parentElement.id)" src="images/icons8-delete-trash-24.png" alt="">
+                    <img class="edit icon" data-todoItemId="${itemID}" onclick="handleEditItem('${itemID}')" src="images/icons8-pencil-24.png" alt="">
+                    <img class="delete icon" data-todoItemId="${itemID}" onclick="handleDeleteItem('${itemID}')" src="images/icons8-delete-trash-24.png" alt="">
                 </div>
             </div>
         `
