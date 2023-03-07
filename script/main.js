@@ -5,56 +5,36 @@ let allTodoList = [];
 function onPageLoad() {
     getNewTodo();
     displayTodoList();
-  //  handleDeleteTodo();
-    // hanndleNewTodoItem();
 }
 
 function addNewTodo(todoListName, todoListId) {
     allTodoList.push({
         todoListName,
         todoListId,
-        todos: [
+        tasks: [
         ]
     })
 
     displayTodoList()
 }
 
-function addNewTodoItemToArray(todoItemName, createdItemID, todoID) {
+function addNewTaskToArray(taskName, createdItemID, todoID) {
     let todoListIndex = allTodoList.findIndex(allTodo => allTodo.todoListId === todoID)
     // let myIndex = fruits.findIndex(fruit => fruit.type === "Orange");
-    allTodoList[todoListIndex].todos.push({itemID : createdItemID, todoItem : todoItemName})
-}
-
-function handleNewTodoItem() {
-    const buttonElement = document.querySelector(".newTodoItem");
-
-    buttonElement.addEventListener("keydown", function(event){
-        if (event.key === 'Enter') {
-            const todoListIndex = getArrayIndexFromID(this.parentElement.id)
-            const todoItemName = document.querySelector('.newTodoItem').value
-            let createdItemID = randomString(5)
-            
-            addNewTodoItemToArray(todoItemName, createdItemID, todoListIndex)
-            //clear input box
-            displayTodoItems(todoItemName)
-            clearInputBox(buttonElement)
-            // displayTodoTittle(createdID)
-        }
-    });   
+    allTodoList[todoListIndex].tasks.push({itemID : createdItemID, task : taskName})
 }
 
 function handleKeyDownForNewTodoInput( event) {
     const buttonElement = document.querySelector(".newTodoItem");
     if (event.key === 'Enter') {
         // const todoListIndex = 
-        const todoItemName = document.querySelector('.newTodoItem').value
-        const todoListID = event.target.getAttribute('data-todoListId')
+        const taskName = document.querySelector('.newTodoItem').value
+        const taskId = event.target.getAttribute('data-todoListId')
         let createdItemID = randomString(5)
         
-        addNewTodoItemToArray(todoItemName, createdItemID, todoListID)
+        addNewTaskToArray(taskName, createdItemID, taskId)
         //clear input box
-        displayTodoItems(todoListID)
+        displayTodoTask(taskId)
         clearInputBox(buttonElement)
         // displayTodoTittle(createdID)
     }
@@ -81,14 +61,10 @@ function getArrayIndexFromID(arrayID) {
 }
 
 function handleDeleteTodo(arrayId){
-    // const index = allTodoList.findIndex(item => item.todoListId === parentID);
-    // const index = getArrayIndexFromID(arrayID)
     deleteTodo(arrayId)
     displayTodoList()
     displayTodoTittle(arrayId)
-  //  if(allTodoList.length>0) {
-        displayTodoItems(allTodoList[0].todoListId)
-  //  }
+    displayTodoTask(allTodoList[0].todoListId)
 }
 
 
@@ -97,15 +73,17 @@ function deleteTodo(arrayId) {
 }
 
 function handleEditTodo(todoListId){
-    // const index = allTodoList.findIndex(item => item.todoListId === parentID);
     editTodo(todoListId)
     displayTodoList()
 }
 
 function editTodo(todoListId) {
-
     const todoList = getTodoListById(todoListId);
-    todoList.todoListName = 'test'
+    // todoList.todoListName = 'test'
+}
+
+function handleDeleteTask(taskId) {
+    //write what I need to do here
 }
 
 function getTodoListById(todoListId) {
@@ -136,7 +114,7 @@ function displayTodoTittle(arrayId) {
     const displayTodo = document.querySelector('.displayTodoTittle')
     
     let index
-    if(getArrayIndexFromID(arrayId)<0){
+    if(getArrayIndexFromID(arrayId)===-1){
         index = 0
         arrayId = allTodoList[0].todoListId
     } else {
@@ -150,30 +128,34 @@ function displayTodoTittle(arrayId) {
         listName = allTodoList[index].todoListName
         todoItemInput =  `
             <div id="${arrayId}">
-                <label for=""><h4>Create New Todo Item:</h4></label>
-                <input data-todolistID="${arrayId}" onkeydown="handleKeyDownForNewTodoInput(event, '${arrayId}')" class="form-control mr-sm-2 newTodoItem" type="text" placeholder="Enter New Todo" aria-label="listName">             
+                <label for=""><h4>Create New Task:</h4></label>
+                <input data-todolistID="${arrayId}" onkeydown="handleKeyDownForNewTodoInput(event, '${arrayId}')" class="form-control mr-sm-2 newTodoItem" type="text" placeholder="Enter New Task" aria-label="listName">             
             </div>`
-        } else {
+    } else {
             listName = 'Create New Todo Please'
-        }
-        let newInnerHTML = `<h1>` + listName + `</h1>` + todoItemInput
-        displayTodo.innerHTML = newInnerHTML 
-       displayTodoItems(arrayId)
+            todoItemInput = ''
+    }
+    let newInnerHTML = `<h1>` + listName + `</h1>` + todoItemInput
+    displayTodo.innerHTML = newInnerHTML 
+    if(allTodoList.length > 0) {
+        displayTodoTask(arrayId)
+    }
 }
 
-function displayTodoItems(todoID) {
+
+function displayTodoTask(todoID) {
     const displayLocation = document.querySelector('.todoListDisplayArea');
     let newInnerHTML = '';
     let todoIndex = getArrayIndexFromID(todoID)
 
-    allTodoList[todoIndex].todos.forEach(item => {
-        const { itemID , todoItem } = item
+    allTodoList[todoIndex].tasks.forEach(item => {
+        const { itemID , task } = item
         newInnerHTML += `
             <div id="${itemID}" class="displayTodoItem">
-                <div>${todoItem}</div>
+                <div>${task}</div>
                 <div>
-                    <img class="edit icon" data-todoItemId="${itemID}" onclick="handleEditItem('${itemID}')" src="images/icons8-pencil-24.png" alt="">
-                    <img class="delete icon" data-todoItemId="${itemID}" onclick="handleDeleteItem('${itemID}')" src="images/icons8-delete-trash-24.png" alt="">
+                    <img class="edit icon" data-todoItemId="${itemID}" onclick="handleEditTask('${itemID}')" src="images/icons8-pencil-24.png" alt="">
+                    <img class="delete icon" data-todoItemId="${itemID}" onclick="handleDeleteTask('${itemID}')" src="images/icons8-delete-trash-24.png" alt="">
                 </div>
             </div>
         `
@@ -200,3 +182,22 @@ function randomString(length) {
 }
 
 window.onload = onPageLoad;
+
+
+// function handleNewTask() {
+//     const buttonElement = document.querySelector(".newTask");
+
+//     buttonElement.addEventListener("keydown", function(event){
+//         if (event.key === 'Enter') {
+//             const todoListIndex = getArrayIndexFromID(this.parentElement.id)
+//             const taskName = document.querySelector('.newTask').value
+//             let createdItemID = randomString(5)
+            
+//             addNewTaskToArray(taskName, createdItemID, todoListIndex)
+//             //clear input box
+//             displayTodoTask(taskName)
+//             clearInputBox(buttonElement)
+//             // displayTodoTittle(createdID)
+//         }
+//     });   
+// }
