@@ -3,7 +3,8 @@ main {
 }
 
 .rightSide {
-  background-color: #727272;
+  background-color: #343A3F;
+  color: #e9e9e9;
 }
 
 .col-3 {
@@ -11,17 +12,18 @@ main {
 }
 
 .displayTodoItem {
-  background-color: grey;
+  background-color: #343A3F;
   border-radius: 10px;
   width: 100%;
   padding: 1em;
   margin: 1em auto;
+  color: #e9e9e9;
   display: flex;
   justify-content: space-between;
 }
 
 .displayTodoItem:hover {
-  background-color: white;
+  background-color: grey;
 }
 
 .icon {
@@ -29,18 +31,27 @@ main {
 }
 
 .edit:hover {
-  background-color: #979797;
+  background-color: #343A3F;
+  border-radius: 10px;
+}
+
+.delete {
+  background-color: #e9e9e9;
   border-radius: 10px;
 }
 
 .delete:hover {
-  background-color: #979797;
+  background-color: #343A3F;
   border-radius: 10px;
 }
 
 .displayTodoTittle {
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid white;
   display: flex;
   justify-content: space-between;
   padding: 1em 0;
+}
+
+.newTodo {
+  width: 100%;
 }/*# sourceMappingURL=style.css.map */

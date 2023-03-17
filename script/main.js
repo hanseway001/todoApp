@@ -3,8 +3,9 @@
 let allTodoList = [];
 
 function onPageLoad() {
-    getNewTodo();
-    displayTodoList();
+    getNewTodo()
+    displayTodo()
+    loadData()
 }
 
 function addNewTodo(todoListName, todoListId) {
@@ -14,14 +15,15 @@ function addNewTodo(todoListName, todoListId) {
         tasks: [
         ]
     })
-
-    displayTodoList()
+    saveData()
+    displayTodo()
 }
 
 function addNewTaskToArray(taskName, createdItemID, todoID) {
     let todoListIndex = allTodoList.findIndex(allTodo => allTodo.todoListId === todoID)
     // let myIndex = fruits.findIndex(fruit => fruit.type === "Orange");
     allTodoList[todoListIndex].tasks.push({itemID : createdItemID, task : taskName})
+    saveData()
 }
 
 function handleKeyDownForNewTodoInput( event) {
@@ -62,9 +64,10 @@ function getArrayIndexFromID(arrayID) {
 
 function handleDeleteTodo(arrayId){
     deleteTodo(arrayId)
-    displayTodoList()
-    displayTodoTittle(arrayId)
-    displayTodoTask(allTodoList[0].todoListId)
+    saveData()
+    displayTodo()
+    displayTodoTittle()
+    // displayTodoTask()
 }
 
 
@@ -74,7 +77,7 @@ function deleteTodo(arrayId) {
 
 function handleEditTodo(todoListId){
     editTodo(todoListId)
-    displayTodoList()
+    displayTodo()
 }
 
 function editTodo(todoListId) {
@@ -82,24 +85,41 @@ function editTodo(todoListId) {
     // todoList.todoListName = 'test'
 }
 
-function handleDeleteTask(taskId) {
+function handleDeleteTask(taskId, arrayId) {
     //write what I need to do here
+    deleteTask(taskId)
+    saveData()
+    displayTodo()
+    // displayTodoTittle()
+    displayTodoTask(arrayId)
+    // displayTodoTask(allTodoList[0].todoListId)
+}
+
+function deleteTask(taskId) {
+    // allTodoList.tasks[0]
+    allTodoList.forEach(item => {
+        // index = item.tasks.indexOf('taskId')
+        const index = item.tasks.map(e => e.itemID).indexOf(taskId)
+        if(index>-1){
+            item.tasks.splice(index,1)
+        }
+    })
+    
 }
 
 function getTodoListById(todoListId) {
     return allTodoList.find(currentTodoList => currentTodoList.todoListId === todoListId)
 }
 
-function displayTodoList() {
+function displayTodo() {
     const displayLocation = document.querySelector('.displayTodoList');
     let newInnerHTML = '';
     allTodoList.forEach(item => {
         const { todoListName , todoListId } = item
         newInnerHTML += `
             <div id="${todoListId}" class="displayTodoItem" onclick="displayTodoTittle('${todoListId}')">
-                <div>${todoListName}</div>
+                <div class="d-flex align-items-center">${todoListName}</div>
                 <div>
-                    <img class="edit icon" data-todoListId="${todoListId}"  onclick="handleEditTodo('${todoListId}')" src="images/icons8-pencil-24.png" alt="">
                     <img class="delete icon" onclick="handleDeleteTodo('${todoListId}')" src="images/icons8-delete-trash-24.png" alt="">
                 </div>
             </div>
@@ -114,53 +134,70 @@ function displayTodoTittle(arrayId) {
     const displayTodo = document.querySelector('.displayTodoTittle')
     
     let index
-    if(getArrayIndexFromID(arrayId)===-1){
-        index = 0
-        arrayId = allTodoList[0].todoListId
-    } else {
+    if(getArrayIndexFromID(arrayId)===-1 || arrayId == null){
+        listName = 'Select Todo or Create New Todo Please'
+        todoItemInput = ''
+    } else if (allTodoList.length > 0) {
         index = getArrayIndexFromID(arrayId)
-    }
-
-    console.log(arrayId  + ' array id')
-    console.log(index  + ' array index')
-
-    if (allTodoList.length > 0) {
         listName = allTodoList[index].todoListName
         todoItemInput =  `
             <div id="${arrayId}">
-                <label for=""><h4>Create New Task:</h4></label>
+                <label class="d-flex align-items-center" for=""><h4>Create New Task:</h4></label>
                 <input data-todolistID="${arrayId}" onkeydown="handleKeyDownForNewTodoInput(event, '${arrayId}')" class="form-control mr-sm-2 newTodoItem" type="text" placeholder="Enter New Task" aria-label="listName">             
             </div>`
-    } else {
-            listName = 'Create New Todo Please'
-            todoItemInput = ''
-    }
-    let newInnerHTML = `<h1>` + listName + `</h1>` + todoItemInput
+    } 
+    
+    let newInnerHTML = `<h1 class="d-flex align-items-center">` + listName + `</h1>` + todoItemInput
     displayTodo.innerHTML = newInnerHTML 
     if(allTodoList.length > 0) {
+        // console.log(arrayId + ' display todo Tittle')
         displayTodoTask(arrayId)
     }
 }
 
 
-function displayTodoTask(todoID) {
+function displayTodoTask(arrayId) {
     const displayLocation = document.querySelector('.todoListDisplayArea');
     let newInnerHTML = '';
-    let todoIndex = getArrayIndexFromID(todoID)
+    let todoIndex = getArrayIndexFromID(arrayId)
 
-    allTodoList[todoIndex].tasks.forEach(item => {
-        const { itemID , task } = item
-        newInnerHTML += `
+    if(allTodoList[todoIndex].tasks.length == 0){
+        displayLocation.innerHTML = newInnerHTML
+    } else {
+        
+        allTodoList[todoIndex].tasks.forEach(item => {
+            const { itemID , task } = item
+            newInnerHTML += `
             <div id="${itemID}" class="displayTodoItem">
-                <div>${task}</div>
+                <div class="d-flex align-items-center">
+                <div class="p-1"><input type="checkbox"></div>
+                    <div>${task}</div>
+                </div>
                 <div>
-                    <img class="edit icon" data-todoItemId="${itemID}" onclick="handleEditTask('${itemID}')" src="images/icons8-pencil-24.png" alt="">
-                    <img class="delete icon" data-todoItemId="${itemID}" onclick="handleDeleteTask('${itemID}')" src="images/icons8-delete-trash-24.png" alt="">
+                    <img class="delete icon" data-todoItemId="${itemID}" onclick="handleDeleteTask('${itemID}', '${arrayId}')" src="images/icons8-delete-trash-24.png" alt="">
                 </div>
             </div>
-        `
-    });
-    displayLocation.innerHTML = newInnerHTML
+            `
+        });
+        displayLocation.innerHTML = newInnerHTML
+    }
+}
+
+function saveData() {
+    localStorage.saveTodo = JSON.stringify(allTodoList);
+}
+
+function loadData() {
+    // console.log(localStorage.savedBids)
+    if ( localStorage.length>0) {
+        allTodoList =  JSON.parse(localStorage.getItem('saveTodo'))
+        displayTodo()
+    }
+
+}
+
+function clearData() {
+    localStorage.clear()
 }
 
 function clearInputBox(element) {
@@ -182,22 +219,3 @@ function randomString(length) {
 }
 
 window.onload = onPageLoad;
-
-
-// function handleNewTask() {
-//     const buttonElement = document.querySelector(".newTask");
-
-//     buttonElement.addEventListener("keydown", function(event){
-//         if (event.key === 'Enter') {
-//             const todoListIndex = getArrayIndexFromID(this.parentElement.id)
-//             const taskName = document.querySelector('.newTask').value
-//             let createdItemID = randomString(5)
-            
-//             addNewTaskToArray(taskName, createdItemID, todoListIndex)
-//             //clear input box
-//             displayTodoTask(taskName)
-//             clearInputBox(buttonElement)
-//             // displayTodoTittle(createdID)
-//         }
-//     });   
-// }
