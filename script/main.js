@@ -22,7 +22,7 @@ function addNewTodo(todoListName, todoListId) {
 function addNewTaskToArray(taskName, createdItemID, todoID) {
     let todoListIndex = allTodoList.findIndex(allTodo => allTodo.todoListId === todoID)
     // let myIndex = fruits.findIndex(fruit => fruit.type === "Orange");
-    allTodoList[todoListIndex].tasks.push({itemID : createdItemID, task : taskName})
+    allTodoList[todoListIndex].tasks.push({itemID : createdItemID, task : taskName, selected : false})
     saveData()
 }
 
@@ -166,11 +166,11 @@ function displayTodoTask(arrayId) {
     } else {
         
         allTodoList[todoIndex].tasks.forEach(item => {
-            const { itemID , task } = item
+            const { itemID , task  , selected} = item
             newInnerHTML += `
             <div id="${itemID}" class="displayTodoItem">
                 <div class="d-flex align-items-center">
-                <div class="p-1"><input type="checkbox"></div>
+                <div class="p-1"><input type="checkbox" name="task" ${selected ? 'checked' : ''} onclick="updateSelectedStatus('${itemID}')"></div>
                     <div>${task}</div>
                 </div>
                 <div>
@@ -181,6 +181,32 @@ function displayTodoTask(arrayId) {
         });
         displayLocation.innerHTML = newInnerHTML
     }
+}
+
+function updateSelectedStatus(taskId, newselected) {
+    console.log(`taskId: ${taskId}`)
+    // const isChecked = document.querySelector('input')
+
+    allTodoList.forEach(item => {
+        item.tasks.map(e => {
+            if (e.itemID === taskId) {
+                e.selected = !e.selected
+            }
+        })
+
+        // item.tasks.forEach(task => {
+        //     if (task.itemID === taskId) {
+        //         task.selected = !task.selected
+        //     }
+        // })
+        
+        // index = item.tasks.indexOf('taskId')
+        // const index = item.tasks.map(e => e.itemID).indexOf(taskId)
+        // if(index>-1){
+            // item.selected = !newselected
+        // }
+    })
+
 }
 
 function saveData() {
