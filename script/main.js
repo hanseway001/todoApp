@@ -181,6 +181,27 @@ function displayTodoTask(arrayId) {
         });
         displayLocation.innerHTML = newInnerHTML
     }
+    displayLocation.innerHTML += `<button class="deleteAll icon" onClick="deleteCompleted(${todoIndex})">Delete all Completed</button>`
+}
+
+function deleteCompleted(todoIndex) {
+    console.log(todoIndex)
+    selectedIndexs = []
+    allTodoList[todoIndex].tasks.forEach( (e, index) => {
+        if(e.selected) {
+            console.log('to delete index ' + index)
+
+            selectedIndexs.unshift(index)
+        }
+    })
+    selectedIndexs.forEach( e => {
+        console.log('before '+ JSON.stringify(allTodoList[todoIndex].tasks))
+        allTodoList[todoIndex].tasks.splice(e,1)
+        console.log('adfter '+ JSON.stringify(allTodoList[todoIndex].tasks))
+    
+    })
+    console.log(allTodoList[todoIndex].todoListId)
+    displayTodoTask(allTodoList[todoIndex].todoListId)
 }
 
 function updateSelectedStatus(taskId, newselected) {
@@ -199,12 +220,7 @@ function updateSelectedStatus(taskId, newselected) {
         //         task.selected = !task.selected
         //     }
         // })
-        
-        // index = item.tasks.indexOf('taskId')
-        // const index = item.tasks.map(e => e.itemID).indexOf(taskId)
-        // if(index>-1){
-            // item.selected = !newselected
-        // }
+  
     })
 
 }
